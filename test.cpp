@@ -6,7 +6,7 @@
 using namespace std;
 using namespace cv;
 
-static std::string prefix = "/home/meiqua/shape_based_matching/test/";
+static std::string prefix = "/Users/caishuxian/Documents/TemplateMatching/shape_based_matching/test/";
 
 class Timer
 {
@@ -129,7 +129,8 @@ void scale_test(string mode = "test"){
 
 //    mode = "test";
     if(mode == "train"){
-        Mat img = cv::imread(prefix+"case0/templ/circle.png");
+        // Mat img = cv::imread(prefix+"case0/templ/circle.png");
+        Mat img = cv::imread(prefix+"case6/templ/template_4.bmp");
         assert(!img.empty() && "check your img path");
         shape_based_matching::shapeInfo_producer shapes(img);
 
@@ -138,7 +139,8 @@ void scale_test(string mode = "test"){
         shapes.produce_infos();
 
         std::vector<shape_based_matching::shapeInfo_producer::Info> infos_have_templ;
-        string class_id = "circle";
+        // string class_id = "circle";
+        string class_id = "line";
         for(auto& info: shapes.infos){
 
             // template img, id, mask,
@@ -154,21 +156,26 @@ void scale_test(string mode = "test"){
         }
 
         // save templates
-        detector.writeClasses(prefix+"case0/%s_templ.yaml");
+        // detector.writeClasses(prefix+"case0/%s_templ.yaml");
+        detector.writeClasses(prefix+"case6/%s_templ.yaml");
 
         // save infos,
         // in this simple case infos are not used
-        shapes.save_infos(infos_have_templ, prefix + "case0/circle_info.yaml");
+        // shapes.save_infos(infos_have_templ, prefix + "case0/circle_info.yaml");
+        shapes.save_infos(infos_have_templ, prefix + "case6/line_info.yaml");
         std::cout << "train end" << std::endl << std::endl;
 
     }else if(mode=="test"){
         std::vector<std::string> ids;
 
         // read templates
-        ids.push_back("circle");
-        detector.readClasses(ids, prefix+"case0/%s_templ.yaml");
+        // ids.push_back("circle");
+        ids.push_back("line");
+        // detector.readClasses(ids, prefix+"case0/%s_templ.yaml");
+        detector.readClasses(ids, prefix+"case6/%s_templ.yaml");
 
-        Mat test_img = imread(prefix+"case0/1.jpg");
+        // Mat test_img = imread(prefix+"case0/1.jpg");
+        Mat test_img = imread(prefix+"case6/source_4.bmp");
         assert(!test_img.empty() && "check your img path");
 
         // make the img having 32*n width & height
@@ -195,8 +202,8 @@ void scale_test(string mode = "test"){
         if(top5>matches.size()) top5=matches.size();
         for(size_t i=0; i<top5; i++){
             auto match = matches[i];
-            auto templ = detector.getTemplates("circle",
-                                               match.template_id);
+            // auto templ = detector.getTemplates("circle", match.template_id);
+            auto templ = detector.getTemplates("line", match.template_id);
             // template:
             // nums: num_pyramids * num_modality (modality, depth or RGB, always 1 here)
             // template[0]: lowest pyrimad(more pixels)
@@ -383,7 +390,8 @@ void noise_test(string mode = "test"){
     line2Dup::Detector detector(30, {4, 8});
 
     if(mode == "train"){
-        Mat img = imread(prefix+"case2/train.png");
+        // Mat img = imread(prefix+"case2/train.png");
+        Mat img = imread(prefix+"case6/templ/template_4.bmp");
         assert(!img.empty() && "check your img path");
         Mat mask = Mat(img.size(), CV_8UC1, {255});
 
@@ -404,15 +412,19 @@ void noise_test(string mode = "test"){
                 infos_have_templ.push_back(info);
             }
         }
-        detector.writeClasses(prefix+"case2/%s_templ.yaml");
-        shapes.save_infos(infos_have_templ, prefix + "case2/test_info.yaml");
+        // detector.writeClasses(prefix+"case2/%s_templ.yaml");
+        // shapes.save_infos(infos_have_templ, prefix + "case2/test_info.yaml");
+        detector.writeClasses(prefix+"case6/%s_templ.yaml");
+        shapes.save_infos(infos_have_templ, prefix + "case6/test_info.yaml");
         std::cout << "train end" << std::endl << std::endl;
     }else if(mode=="test"){
         std::vector<std::string> ids;
         ids.push_back("test");
-        detector.readClasses(ids, prefix+"case2/%s_templ.yaml");
+        // detector.readClasses(ids, prefix+"case2/%s_templ.yaml");
+        detector.readClasses(ids, prefix+"case6/%s_templ.yaml");
 
-        Mat test_img = imread(prefix+"case2/test.png");
+        // Mat test_img = imread(prefix+"case2/test.png");
+        Mat test_img = imread(prefix+"case6/source_4.bmp");
         assert(!test_img.empty() && "check your img path");
 
         // cvtColor(test_img, test_img, CV_BGR2GRAY);
@@ -507,8 +519,8 @@ void MIPP_test(){
 }
 
 int main(){
-    // scale_test("test");
-    angle_test("test", true); // test or train
+    scale_test("test");
+    // angle_test("test", true); // test or train
     // noise_test("test");
     return 0;
 }
